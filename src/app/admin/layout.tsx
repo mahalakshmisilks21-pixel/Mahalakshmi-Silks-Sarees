@@ -17,6 +17,7 @@ import {
   ChevronRight,
   Bell,
   MessageCircle,
+  Megaphone,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAdmin } from "@/context/AdminContext";
@@ -29,6 +30,7 @@ const sidebarLinks = [
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Inventory", href: "/admin/inventory", icon: Warehouse },
   { name: "Reviews", href: "/admin/reviews", icon: MessageCircle },
+  { name: "Promotions", href: "/admin/promotions", icon: Megaphone },
   { name: "Invoice", href: "/admin/invoice", icon: FileText },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];

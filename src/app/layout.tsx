@@ -7,6 +7,7 @@ import { AdminProvider } from "@/context/AdminContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { ReviewProvider } from "@/context/ReviewContext";
+import { PromotionProvider } from "@/context/PromotionContext";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -45,13 +46,15 @@ export default function RootLayout({
       <body className="antialiased">
         <AdminProvider>
           <AuthProvider>
-            <ReviewProvider>
-              <WishlistProvider>
-                <CartProvider>
-                  <LayoutShell>{children}</LayoutShell>
-                </CartProvider>
-              </WishlistProvider>
-            </ReviewProvider>
+            <PromotionProvider>
+              <ReviewProvider>
+                <WishlistProvider>
+                  <CartProvider>
+                    <LayoutShell>{children}</LayoutShell>
+                  </CartProvider>
+                </WishlistProvider>
+              </ReviewProvider>
+            </PromotionProvider>
           </AuthProvider>
         </AdminProvider>
       </body>

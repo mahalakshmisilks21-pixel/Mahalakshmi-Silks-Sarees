@@ -121,12 +121,34 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const deleteProduct = useCallback((id: string) => {
+    // Find the product to get its image URLs before removing from state
+    const product = products.find((p) => p.id === id);
+
     setProducts((prev) => prev.filter((p) => p.id !== id));
 
+    // Delete images from Supabase Storage
+    if (product?.images?.length) {
+      const filePaths = product.images
+        .filter((url) => url.includes("supabase.co/storage"))
+        .map((url) => {
+          // Extract path after /object/public/product-images/
+          const match = url.match(/product-images\/(.+)$/);
+          return match ? match[1] : null;
+        })
+        .filter(Boolean) as string[];
+
+      if (filePaths.length > 0) {
+        supabase.storage.from("product-images").remove(filePaths).then(({ error }) => {
+          if (error) console.error("Delete images error:", error);
+        });
+      }
+    }
+
+    // Delete product from database
     supabase.from("products").delete().eq("id", id).then(({ error }) => {
       if (error) console.error("Delete product error:", error);
     });
-  }, []);
+  }, [products]);
 
   /* ── Orders ── */
   const addOrder = useCallback((order: Omit<Order, "id">) => {

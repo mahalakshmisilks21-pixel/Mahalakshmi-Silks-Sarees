@@ -4,13 +4,14 @@ import { useRef, useEffect } from "react";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Truck, Shield, RotateCcw, Award, Tag } from "lucide-react";
-import { CATEGORIES, reviews, offers } from "@/lib/data";
+import { ArrowRight, Star, Truck, Shield, RotateCcw, Award } from "lucide-react";
+import { CATEGORIES } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import { ProductCard } from "@/components/ui/ProductCard";
 import { SectionHeader, OrnamentDivider } from "@/components/ui/SectionHeader";
 import { PlaceholderImage, PlaceholderBanner } from "@/components/ui/PlaceholderImage";
 import { useAdmin } from "@/context/AdminContext";
+import { usePromotions } from "@/context/PromotionContext";
 
 /* ─── Hero ─── */
 function HeroSection() {
@@ -372,30 +373,49 @@ function BestSellersSection() {
 
 /* ─── Offers Banner ─── */
 function OffersSection() {
+  const { offers } = usePromotions();
+  const activeOffers = offers.filter((o) => o.active);
+
+  if (activeOffers.length === 0) return null;
+
   return (
-    <section className="py-8 px-4 bg-maroon-800 vintage-pattern-bg relative overflow-hidden">
-      <div className="absolute inset-0 bg-maroon-800/90" />
-      <div className="relative max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <p className="text-gold-400 tracking-[0.4em] uppercase text-sm mb-2">Special Deals</p>
-          <h2 className="font-heading text-4xl text-white mb-2">Festive Offers</h2>
-          <OrnamentDivider className="my-4" />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {offers.map((offer, i) => (
+    <section className="py-14 px-4 bg-gradient-to-b from-cream-50 to-cream-100">
+      <div className="max-w-5xl mx-auto">
+        <SectionHeader
+          subtitle="Special Deals"
+          title="Festive Offers"
+          description="Exclusive savings on our finest silk collections"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {activeOffers.map((offer, i) => (
             <motion.div
               key={offer.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.15 }}
-              className="bg-maroon-700/50 backdrop-blur-sm border border-gold-500/30 p-8 rounded-sm text-center hover:border-gold-400 transition-all duration-500 group"
+              transition={{ delay: i * 0.12 }}
+              className="relative bg-white border border-gold-200 rounded-sm p-6 hover:shadow-md transition-shadow group overflow-hidden"
             >
-              <Tag className="text-gold-400 mx-auto mb-4" size={32} />
-              <h3 className="font-heading text-2xl text-white mb-2">{offer.title}</h3>
-              <p className="text-gold-200 text-sm mb-4">{offer.description}</p>
-              <div className="bg-maroon-900/50 border border-dashed border-gold-500 inline-block px-4 py-2 rounded-sm">
-                <span className="text-gold-400 font-mono tracking-wider text-sm">{offer.code}</span>
+              {/* Vintage corner accent */}
+              <div className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-gold-400 rounded-tl-sm" />
+              <div className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-gold-400 rounded-br-sm" />
+
+              <div className="flex items-start gap-3 mb-3">
+                <div className="w-9 h-9 rounded-full bg-cream-100 border border-gold-200 flex items-center justify-center shrink-0">
+                  <span className="font-heading text-maroon-700 text-lg">{offer.discount}%</span>
+                </div>
+                <div>
+                  <h3 className="font-heading text-lg text-maroon-800 leading-snug">{offer.title}</h3>
+                  <p className="text-xs text-gray-500 mt-0.5">{offer.description}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 mt-4">
+                <div className="flex-1 border-t border-dashed border-gold-300" />
+                <span className="bg-cream-100 border border-gold-300 text-maroon-700 font-mono text-xs tracking-widest px-4 py-1.5 rounded-sm">
+                  {offer.code}
+                </span>
+                <div className="flex-1 border-t border-dashed border-gold-300" />
               </div>
             </motion.div>
           ))}
@@ -405,55 +425,6 @@ function OffersSection() {
   );
 }
 
-/* ─── Customer Reviews ─── */
-function ReviewsSection() {
-  return (
-    <section className="py-8 px-4 bg-gradient-to-b from-cream-50 to-cream-100">
-      <div className="max-w-7xl mx-auto">
-        <SectionHeader
-          subtitle="Testimonials"
-          title="What Our Customers Say"
-          description="Real stories from women who found their perfect silk saree with us."
-        />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {reviews.slice(0, 3).map((review, i) => (
-            <motion.div
-              key={review.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.15 }}
-              className="bg-white border border-gold-200 p-8 rounded-sm relative"
-            >
-              <span className="absolute -top-4 left-6 font-heading text-6xl text-gold-300 leading-none">&ldquo;</span>
-              <div className="flex items-center gap-1 mb-4 mt-2">
-                {Array.from({ length: 5 }).map((_, idx) => (
-                  <Star
-                    key={idx}
-                    size={14}
-                    className={idx < review.rating ? "fill-gold-400 text-gold-400" : "text-gray-300"}
-                  />
-                ))}
-              </div>
-              <p className="text-gray-600 text-sm leading-relaxed mb-6 italic">
-                &ldquo;{review.comment}&rdquo;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-maroon-100 flex items-center justify-center">
-                  <span className="font-heading text-maroon-700 text-sm">{review.userName[0]}</span>
-                </div>
-                <div>
-                  <p className="font-medium text-maroon-800 text-sm">{review.userName}</p>
-                  <p className="text-gray-400 text-xs">{review.date}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 /* ─── CTA Banner ─── */
 function CTASection() {
@@ -495,7 +466,7 @@ export default function HomePage() {
       <CategoriesSection />
       <BestSellersSection />
       <OffersSection />
-      <ReviewsSection />
+
       <CTASection />
     </>
   );

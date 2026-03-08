@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { Plus, Trash2, Printer, FileText, ArrowLeft } from "lucide-react";
 import { Dropdown } from "@/components/ui/Dropdown";
+import { DatePicker } from "@/components/ui/DatePicker";
 import Link from "next/link";
 
 interface InvoiceItem {
@@ -175,9 +176,9 @@ export default function InvoicePage() {
                         <label className="block text-xs font-medium text-gray-600 mb-1">Invoice No. *</label>
                         <input className="input-vintage text-sm" value={invoiceNo} onChange={(e) => setInvoiceNo(e.target.value)} placeholder="336" />
                     </div>
-                    <div>
+                    <div style={{ position: "relative", zIndex: 20 }}>
                         <label className="block text-xs font-medium text-gray-600 mb-1">Date *</label>
-                        <input type="date" className="input-vintage text-sm" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} />
+                        <DatePicker value={invoiceDate} onChange={setInvoiceDate} placeholder="Select invoice date" isClearable />
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">Transport</label>
@@ -294,9 +295,9 @@ export default function InvoicePage() {
                         <label className="block text-xs font-medium text-gray-600 mb-1">No. of Bundles</label>
                         <input className="input-vintage text-sm" value={noOfBundles} onChange={(e) => setNoOfBundles(e.target.value)} />
                     </div>
-                    <div>
+                    <div style={{ position: "relative", zIndex: 10 }}>
                         <label className="block text-xs font-medium text-gray-600 mb-1">Booking Date</label>
-                        <input type="date" className="input-vintage text-sm" value={bookingDate} onChange={(e) => setBookingDate(e.target.value)} />
+                        <DatePicker value={bookingDate} onChange={setBookingDate} placeholder="Select booking date" isClearable />
                     </div>
                     <div>
                         <label className="block text-xs font-medium text-gray-600 mb-1">Payment</label>

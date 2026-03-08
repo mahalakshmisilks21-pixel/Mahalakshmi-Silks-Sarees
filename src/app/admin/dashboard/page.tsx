@@ -198,9 +198,9 @@ export default function AdminDashboard() {
               {recentLogs.map((log) => (
                 <div key={log.id} className="flex items-center gap-3 text-sm">
                   <div className={`w-8 h-8 rounded-sm flex items-center justify-center shrink-0 ${log.type === "restock" ? "bg-green-50 text-green-600" :
-                      log.type === "sale" ? "bg-blue-50 text-blue-600" :
-                        log.type === "return" ? "bg-orange-50 text-orange-600" :
-                          "bg-red-50 text-red-600"
+                    log.type === "sale" ? "bg-blue-50 text-blue-600" :
+                      log.type === "return" ? "bg-orange-50 text-orange-600" :
+                        "bg-red-50 text-red-600"
                     }`}>
                     {log.type === "restock" ? <TrendingUp size={14} /> :
                       log.type === "sale" ? <ShoppingCart size={14} /> :

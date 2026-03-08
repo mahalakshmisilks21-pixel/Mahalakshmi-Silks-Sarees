@@ -266,8 +266,8 @@ export default function AdminOrdersPage() {
                       onClick={() => handleStatusChange(selectedOrder.id, key as Order["status"])}
                       disabled={selectedOrder.status === key}
                       className={`px-3 py-1.5 rounded-sm text-xs font-medium capitalize transition-colors border ${selectedOrder.status === key
-                          ? "bg-maroon-700 text-white border-maroon-700"
-                          : "border-gold-200 text-gray-600 hover:border-maroon-400 hover:text-maroon-700"
+                        ? "bg-maroon-700 text-white border-maroon-700"
+                        : "border-gold-200 text-gray-600 hover:border-maroon-400 hover:text-maroon-700"
                         }`}>
                       {config.label}
                     </button>

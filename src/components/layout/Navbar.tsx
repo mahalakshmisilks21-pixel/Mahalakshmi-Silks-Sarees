@@ -15,7 +15,8 @@ import {
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useWishlist } from "@/context/WishlistContext";
-
+import { usePromotions } from "@/context/PromotionContext";
+import { Dropdown } from "@/components/ui/Dropdown";
 const navLinks = [
   { name: "Home", href: "/" },
   {
@@ -41,13 +42,22 @@ export function Navbar() {
   const { totalItems } = useCart();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { totalWishlist } = useWishlist();
+  const { announcement } = usePromotions();
 
   return (
     <>
       {/* Top bar */}
-      <div className="bg-maroon-800 text-gold-200 text-[10px] py-1 text-center tracking-wider">
-        FREE SHIPPING ON ORDERS ABOVE ₹5,000 | USE CODE: SILK15 FOR 15% OFF
-      </div>
+      {announcement.enabled && announcement.text && (
+        <div className="bg-maroon-800 text-gold-200 text-[10px] py-1 overflow-hidden whitespace-nowrap">
+          <motion.div
+            animate={{ x: ["-100%", "100%"] }}
+            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+            className="inline-block tracking-wider"
+          >
+            {announcement.text}
+          </motion.div>
+        </div>
+      )}
 
       <header className="sticky top-0 z-50 bg-cream-50/95 backdrop-blur-md border-b border-gold-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
