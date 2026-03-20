@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Star, Truck, Shield, RotateCcw, Award } from "lucide-react";
+import { ArrowRight, Star, Truck, Shield, RotateCcw, Award, MessageCircle } from "lucide-react";
 import { CATEGORIES } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import { ProductCard } from "@/components/ui/ProductCard";
@@ -12,6 +12,8 @@ import { SectionHeader, OrnamentDivider } from "@/components/ui/SectionHeader";
 import { PlaceholderImage, PlaceholderBanner } from "@/components/ui/PlaceholderImage";
 import { useAdmin } from "@/context/AdminContext";
 import { usePromotions } from "@/context/PromotionContext";
+import { openWhatsApp, getWhatsAppSubscriptionMessage } from "@/lib/utils";
+import { useSocialMedia } from "@/context/SocialMediaContext";
 
 /* ─── Hero ─── */
 function HeroSection() {
@@ -456,6 +458,65 @@ function CTASection() {
   );
 }
 
+
+/* ─── WhatsApp CTA ─── */
+function WhatsAppCTASection() {
+  const [phone, setPhone] = useState("");
+  const { social } = useSocialMedia();
+
+  const handleSubscribe = () => {
+    const msg = getWhatsAppSubscriptionMessage(phone || "a customer");
+    openWhatsApp(msg, social.whatsappNumber);
+  };
+
+  return (
+    <section className="py-14 px-4 bg-gradient-to-r from-green-600 via-green-500 to-emerald-500 relative overflow-hidden">
+      {/* Decorative blobs */}
+      <div className="absolute top-0 left-1/4 w-48 h-48 rounded-full bg-white/5 blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-40 h-40 rounded-full bg-white/10 blur-3xl" />
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="relative max-w-3xl mx-auto text-center"
+      >
+        <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+          <MessageCircle size={32} className="text-white" />
+        </div>
+
+        <h2 className="font-heading text-3xl md:text-4xl text-white mb-3">
+          Get Exclusive Offers on WhatsApp! 📲
+        </h2>
+        <p className="text-green-100 text-sm md:text-base mb-8 max-w-xl mx-auto">
+          Join our WhatsApp community for early access to new collections, festival offers, and exclusive discounts. Be the first to know!
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center items-center max-w-md mx-auto">
+          <input
+            type="tel"
+            placeholder="Your WhatsApp number"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="flex-1 w-full sm:w-auto bg-white/15 backdrop-blur-sm border border-white/30 px-5 py-3 rounded-full text-sm text-white placeholder:text-green-200 focus:outline-none focus:border-white/60 focus:bg-white/20 transition-all"
+          />
+          <button
+            onClick={handleSubscribe}
+            className="flex items-center gap-2 bg-white text-green-600 font-semibold px-6 py-3 rounded-full hover:bg-green-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 text-sm whitespace-nowrap"
+          >
+            <MessageCircle size={18} />
+            Join on WhatsApp
+          </button>
+        </div>
+
+        <p className="text-green-200/70 text-xs mt-4">
+          💬 We respect your privacy. No spam, only the best deals!
+        </p>
+      </motion.div>
+    </section>
+  );
+}
+
 /* ─── Page ─── */
 export default function HomePage() {
   return (
@@ -468,6 +529,7 @@ export default function HomePage() {
       <OffersSection />
 
       <CTASection />
+      <WhatsAppCTASection />
     </>
   );
 }

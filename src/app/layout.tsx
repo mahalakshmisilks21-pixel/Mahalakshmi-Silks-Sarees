@@ -8,6 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { ReviewProvider } from "@/context/ReviewContext";
 import { PromotionProvider } from "@/context/PromotionContext";
+import { SocialMediaProvider } from "@/context/SocialMediaContext";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -47,13 +48,15 @@ export default function RootLayout({
         <AdminProvider>
           <AuthProvider>
             <PromotionProvider>
-              <ReviewProvider>
-                <WishlistProvider>
-                  <CartProvider>
-                    <LayoutShell>{children}</LayoutShell>
-                  </CartProvider>
-                </WishlistProvider>
-              </ReviewProvider>
+              <SocialMediaProvider>
+                <ReviewProvider>
+                  <WishlistProvider>
+                    <CartProvider>
+                      <LayoutShell>{children}</LayoutShell>
+                    </CartProvider>
+                  </WishlistProvider>
+                </ReviewProvider>
+              </SocialMediaProvider>
             </PromotionProvider>
           </AuthProvider>
         </AdminProvider>

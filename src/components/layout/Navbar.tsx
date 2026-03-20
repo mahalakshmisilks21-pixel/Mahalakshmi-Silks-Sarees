@@ -48,14 +48,19 @@ export function Navbar() {
     <>
       {/* Top bar */}
       {announcement.enabled && announcement.text && (
-        <div className="bg-maroon-800 text-gold-200 text-[10px] py-1 overflow-hidden whitespace-nowrap">
-          <motion.div
-            animate={{ x: ["-100%", "100%"] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        <div className="bg-maroon-800 text-gold-200 text-[10px] py-1 overflow-hidden whitespace-nowrap relative">
+          <style>{`
+            @keyframes marquee-rtl {
+              0% { transform: translateX(100vw); }
+              100% { transform: translateX(-100%); }
+            }
+          `}</style>
+          <div
+            style={{ animation: "marquee-rtl 18s linear infinite" }}
             className="inline-block tracking-wider"
           >
             {announcement.text}
-          </motion.div>
+          </div>
         </div>
       )}
 

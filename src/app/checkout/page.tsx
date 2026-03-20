@@ -4,18 +4,20 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CreditCard, MapPin, Truck, Check, ChevronRight, Lock } from "lucide-react";
+import { MapPin, Truck, Check, ChevronRight, MessageCircle } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, generateWhatsAppOrderMessage, openWhatsApp } from "@/lib/utils";
 import { OrnamentDivider } from "@/components/ui/SectionHeader";
 import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
+import { useSocialMedia } from "@/context/SocialMediaContext";
 
-type Step = "address" | "summary" | "payment" | "confirmation";
+type Step = "address" | "summary" | "whatsapp" | "confirmation";
 
 export default function CheckoutPage() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
   const { isAuthenticated } = useAuth();
+  const { social } = useSocialMedia();
   const router = useRouter();
   const [step, setStep] = useState<Step>("address");
   const [orderId, setOrderId] = useState("");
@@ -44,11 +46,32 @@ export default function CheckoutPage() {
   const steps: { key: Step; label: string; icon: React.ElementType }[] = [
     { key: "address", label: "Address", icon: MapPin },
     { key: "summary", label: "Summary", icon: Truck },
-    { key: "payment", label: "Payment", icon: CreditCard },
+    { key: "whatsapp", label: "WhatsApp", icon: MessageCircle },
     { key: "confirmation", label: "Done", icon: Check },
   ];
 
   const currentIdx = steps.findIndex((s) => s.key === step);
+
+  const handleWhatsAppOrder = () => {
+    const orderItems = items.map((item) => ({
+      name: item.product.name,
+      quantity: item.quantity,
+      price: item.product.discountPrice || item.product.price,
+    }));
+
+    const message = generateWhatsAppOrderMessage(
+      orderItems,
+      address,
+      totalPrice,
+      shipping,
+      tax,
+      grandTotal
+    );
+
+    openWhatsApp(message, social.whatsappNumber);
+    clearCart();
+    setStep("confirmation");
+  };
 
   if (items.length === 0 && step !== "confirmation") {
     return (
@@ -171,40 +194,60 @@ export default function CheckoutPage() {
 
             <div className="mt-8 flex justify-between">
               <button onClick={() => setStep("address")} className="btn-secondary">Back</button>
-              <button onClick={() => setStep("payment")} className="btn-primary flex items-center gap-2">
-                Proceed to Pay <ChevronRight size={16} />
+              <button onClick={() => setStep("whatsapp")} className="btn-primary flex items-center gap-2">
+                Continue <ChevronRight size={16} />
               </button>
             </div>
           </motion.div>
         )}
 
-        {/* Payment */}
-        {step === "payment" && (
+        {/* WhatsApp Order */}
+        {step === "whatsapp" && (
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="card-vintage p-8">
-            <h2 className="font-heading text-2xl text-maroon-800 mb-6">Payment</h2>
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-              <Lock size={14} /> Secure payment powered by Razorpay
-            </div>
+            <h2 className="font-heading text-2xl text-maroon-800 mb-4">Order via WhatsApp</h2>
+            <p className="text-gray-500 text-sm mb-6">
+              Your order details will be sent to our WhatsApp. We&apos;ll confirm your order and share payment details instantly!
+            </p>
 
-            <div className="space-y-4 mb-8">
-              {["Razorpay (UPI, Cards, Net Banking)", "Cash on Delivery"].map((method) => (
-                <label key={method} className="flex items-center gap-3 p-4 border border-gold-200 rounded-sm cursor-pointer hover:border-maroon-400 transition-colors">
-                  <input type="radio" name="payment" defaultChecked={method.includes("Razorpay")} className="accent-maroon-700" />
-                  <span className="text-sm text-maroon-800">{method}</span>
-                </label>
-              ))}
-            </div>
-
-            <div className="bg-cream-100 p-4 rounded-sm mb-6">
-              <div className="flex justify-between font-heading text-lg text-maroon-800">
-                <span>Total Amount</span><span>{formatPrice(grandTotal)}</span>
+            {/* How it works */}
+            <div className="bg-cream-100 rounded-sm p-6 mb-6">
+              <h3 className="font-heading text-lg text-maroon-800 mb-4">How it works</h3>
+              <div className="space-y-4">
+                {[
+                  { step: "1", title: "Send Order", desc: "Click the button below to send your order details via WhatsApp" },
+                  { step: "2", title: "Get Payment Link", desc: "We'll reply with UPI/bank details for easy payment" },
+                  { step: "3", title: "Confirmation", desc: "Once payment is received, we'll confirm and ship your order" },
+                ].map((item) => (
+                  <div key={item.step} className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold shrink-0">
+                      {item.step}
+                    </div>
+                    <div>
+                      <p className="font-medium text-maroon-800 text-sm">{item.title}</p>
+                      <p className="text-xs text-gray-500">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
+            </div>
+
+            {/* Order preview */}
+            <div className="bg-cream-100 p-4 rounded-sm mb-6">
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-gray-600">{totalItems} item{totalItems !== 1 ? "s" : ""}</span>
+                <span className="font-heading text-maroon-800">{formatPrice(grandTotal)}</span>
+              </div>
+              <p className="text-xs text-gray-400">📍 {address.fullName}, {address.city}, {address.state}</p>
             </div>
 
             <div className="flex justify-between">
               <button onClick={() => setStep("summary")} className="btn-secondary">Back</button>
-              <button onClick={() => { clearCart(); setStep("confirmation"); }} className="btn-primary flex items-center gap-2">
-                Place Order <Check size={16} />
+              <button
+                onClick={handleWhatsAppOrder}
+                className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium px-8 py-3 rounded-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02]"
+              >
+                <MessageCircle size={20} />
+                Send Order on WhatsApp
               </button>
             </div>
           </motion.div>
@@ -221,9 +264,14 @@ export default function CheckoutPage() {
             >
               <Check size={40} className="text-green-600" />
             </motion.div>
-            <h2 className="font-heading text-3xl text-maroon-800 mb-4">Order Placed Successfully!</h2>
-            <p className="text-gray-600 mb-2">Thank you for your purchase.</p>
-            <p className="text-sm text-gray-400 mb-8">Order #ORD-{orderId} has been confirmed.</p>
+            <h2 className="font-heading text-3xl text-maroon-800 mb-4">Order Sent Successfully!</h2>
+            <p className="text-gray-600 mb-2">Your order has been sent via WhatsApp.</p>
+            <p className="text-sm text-gray-400 mb-4">Order #ORD-{orderId}</p>
+            <div className="bg-green-50 border border-green-200 rounded-sm p-4 max-w-md mx-auto mb-8">
+              <p className="text-sm text-green-700">
+                💬 Check your WhatsApp! Our team will reply shortly with payment details and order confirmation.
+              </p>
+            </div>
             <OrnamentDivider className="my-6" />
             <div className="flex gap-4 justify-center">
               <Link href="/orders" className="btn-secondary">Track Order</Link>
