@@ -5,27 +5,41 @@ import { motion } from "framer-motion";
 import { MapPin, Phone, Mail, Clock, Send, MessageSquare } from "lucide-react";
 import { SectionHeader, OrnamentDivider } from "@/components/ui/SectionHeader";
 import { Dropdown } from "@/components/ui/Dropdown";
+import { useSiteContent } from "@/context/SiteContentContext";
 
-const contactInfo = [
-  { icon: MapPin, title: "Visit Us", lines: ["875, Mettupalayam Main Road", "Erangattur, Uthandiyur (P.O.)", "Sathy (Tk.) Erode (Dt.) - 638 451"] },
-  { icon: Phone, title: "Call Us", lines: ["+91 90803 16738", "+91 78068 65407"] },
-  { icon: Mail, title: "Email Us", lines: ["mahalakshmisilks@email.com"] },
-  { icon: Clock, title: "Business Hours", lines: ["Mon - Sat: 9AM - 9PM", "Sunday: Closed"] },
-];
+const CONTACT_ICONS = [MapPin, Phone, Mail, Clock] as const;
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const { siteContent } = useSiteContent();
+
+  const contactInfo = [
+    { icon: CONTACT_ICONS[0], title: "Visit Us", lines: siteContent.contactAddress },
+    { icon: CONTACT_ICONS[1], title: "Call Us", lines: siteContent.contactPhones },
+    { icon: CONTACT_ICONS[2], title: "Email Us", lines: [siteContent.contactEmail] },
+    { icon: CONTACT_ICONS[3], title: "Business Hours", lines: siteContent.contactBusinessHours },
+  ];
 
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="bg-gradient-to-b from-maroon-800 to-maroon-900 py-16 px-4 vintage-pattern-bg relative">
-        <div className="absolute inset-0 bg-maroon-800/80" />
+      <section className="relative py-16 px-4 overflow-hidden">
+        {siteContent.contactHeroBannerImage ? (
+          <>
+            <img src={siteContent.contactHeroBannerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-maroon-900/75" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-b from-maroon-800 to-maroon-900 vintage-pattern-bg" />
+            <div className="absolute inset-0 bg-maroon-800/80" />
+          </>
+        )}
         <div className="relative max-w-7xl mx-auto text-center">
           <p className="text-gold-400 tracking-[0.4em] uppercase text-sm mb-2">Get in Touch</p>
-          <h1 className="font-heading text-4xl md:text-5xl text-white mb-4">Contact Us</h1>
+          <h1 className="font-heading text-4xl md:text-5xl text-white mb-4">{siteContent.contactHeroTitle}</h1>
           <p className="text-cream-200 max-w-xl mx-auto">
-            Have questions about our sarees? Need help with an order? We&apos;d love to hear from you.
+            {siteContent.contactHeroSubtitle}
           </p>
         </div>
       </section>
@@ -139,11 +153,10 @@ export default function ContactPage() {
               <div className="text-center p-8">
                 <MapPin size={48} className="text-gold-400 mx-auto mb-4" />
                 <h3 className="font-heading text-xl text-maroon-800 mb-2">Our Store Location</h3>
-                <p className="text-gray-500 text-sm mb-4">875, Mettupalayam Main Road, Erangattur, Erode</p>
+                <p className="text-gray-500 text-sm mb-4">{siteContent.contactAddress.join(", ")}</p>
                 <div className="bg-white border border-gold-200 rounded-sm p-6">
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    Located on Mettupalayam Main Road near Erangattur, Sathy Taluk, Erode District.
-                    Visit our showroom to explore our complete collection of fancy handloom silk and silk cotton sarees.
+                    {siteContent.contactMapDescription}
                   </p>
                   <div className="mt-4 flex gap-2 justify-center">
                     <a
@@ -162,32 +175,7 @@ export default function ContactPage() {
         </div>
       </section>
 
-      {/* FAQ */}
-      <section className="py-20 px-4">
-        <div className="max-w-3xl mx-auto">
-          <SectionHeader subtitle="Common Questions" title="FAQs" />
-          <div className="space-y-4">
-            {[
-              { q: "Do you ship internationally?", a: "Currently we ship across India. International shipping is coming soon. Subscribe to our newsletter for updates." },
-              { q: "Are these sarees handwoven?", a: "Yes, all our sarees are handwoven by skilled artisans. Each piece comes with a Silk Mark certification." },
-              { q: "What is your return policy?", a: "We offer a 7-day return policy for unused sarees in original packaging. Contact our support team to initiate a return." },
-              { q: "Do you offer bulk or wholesale pricing?", a: "Yes! We offer special pricing for bulk orders. Please contact us via the form above or email wholesale@mahalakshmisilk.com." },
-            ].map((faq, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="card-vintage p-6"
-              >
-                <h3 className="font-heading text-lg text-maroon-800 mb-2">{faq.q}</h3>
-                <p className="text-gray-500 text-sm leading-relaxed">{faq.a}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+
     </div>
   );
 }

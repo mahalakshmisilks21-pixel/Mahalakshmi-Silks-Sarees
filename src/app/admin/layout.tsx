@@ -18,6 +18,7 @@ import {
   Bell,
   MessageCircle,
   Megaphone,
+  Globe,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAdmin } from "@/context/AdminContext";
@@ -31,6 +32,7 @@ const sidebarLinks = [
   { name: "Inventory", href: "/admin/inventory", icon: Warehouse },
   { name: "Reviews", href: "/admin/reviews", icon: MessageCircle },
   { name: "Promotions", href: "/admin/promotions", icon: Megaphone },
+  { name: "Site Content", href: "/admin/site-content", icon: Globe },
   { name: "Invoice", href: "/admin/invoice", icon: FileText },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
