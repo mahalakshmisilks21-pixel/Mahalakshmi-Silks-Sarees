@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     restoreSession();
 
     // 3. Listen for auth state changes (login/logout from other tabs, token refresh, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!mounted) return;
 
       // Don't overwrite admin session
@@ -108,12 +108,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (session?.user) {
         const meta = session.user.user_metadata || {};
+        const customerName = meta.name || meta.full_name || "Customer";
+        const customerEmail = session.user.email || "";
+        const customerPhone = meta.phone || "";
+
         setUser({
-          name: meta.name || meta.full_name || "Customer",
-          email: session.user.email || "",
-          phone: meta.phone || "",
+          name: customerName,
+          email: customerEmail,
+          phone: customerPhone,
           role: "customer",
         });
+
+        // Add to admin customers list on sign-in (addCustomer deduplicates by email)
+        if (event === "SIGNED_IN") {
+          addCustomer({
+            name: customerName,
+            email: customerEmail,
+            phone: customerPhone,
+            orders: 0,
+            spent: 0,
+            joinDate: new Date().toISOString().split("T")[0],
+            address: meta.address || "",
+            status: "active",
+          });
+        }
       } else {
         setUser(null);
       }
