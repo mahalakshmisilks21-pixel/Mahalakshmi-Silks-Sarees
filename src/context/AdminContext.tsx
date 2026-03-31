@@ -223,22 +223,27 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   /* ── Customers ── */
   const addCustomer = useCallback(async (customer: Omit<Customer, "id">) => {
-    // Check in-memory first
-    setCustomers((prev) => {
-      if (prev.some((c) => c.email === customer.email)) return prev;
-      return prev; // Don't add yet — wait for DB check
-    });
+    // Quick in-memory check
+    const alreadyInState = customers.some((c) => c.email === customer.email);
+    if (alreadyInState) return;
 
     try {
-      // Check if customer already exists in Supabase
-      const { data: existing } = await supabase
+      // Check if customer already exists in Supabase (maybeSingle returns null if not found, no error)
+      const { data: existing, error: lookupError } = await supabase
         .from("customers")
         .select("id")
         .eq("email", customer.email)
-        .limit(1)
-        .single();
+        .maybeSingle();
 
-      if (existing) return; // Already exists in DB, skip
+      if (lookupError) {
+        console.error("Customer lookup error:", lookupError);
+        return;
+      }
+
+      if (existing) {
+        console.log("[addCustomer] Already exists in DB:", customer.email);
+        return;
+      }
 
       const newCustomer = { ...customer, id: `cust-${Date.now()}` };
       const { error } = await supabase.from("customers").insert({ ...newCustomer });
@@ -247,7 +252,8 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Add to state only after successful DB insert
+      console.log("[addCustomer] New customer added:", customer.email);
+      // Add to state after successful DB insert
       setCustomers((prev) => {
         if (prev.some((c) => c.email === customer.email)) return prev;
         return [...prev, newCustomer];
@@ -255,7 +261,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error("addCustomer error:", err);
     }
-  }, []);
+  }, [customers]);
 
   const deleteCustomer = useCallback(
     (id: string) => {
