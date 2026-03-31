@@ -48,6 +48,9 @@
     font-family: var(--font-body);
     background-color: var(--color-cream-50);
     color: var(--color-maroon-900);
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    overflow-x: hidden;
   }
 
   h1,
@@ -62,19 +65,19 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-maroon-700 text-white px-6 py-3 rounded-sm font-medium hover:bg-maroon-800 transition-all duration-300 border border-maroon-700 hover:shadow-lg;
+    @apply bg-maroon-700 text-white px-4 sm:px-6 py-3 rounded-sm font-medium hover:bg-maroon-800 transition-all duration-300 border border-maroon-700 hover:shadow-lg;
   }
 
   .btn-secondary {
-    @apply bg-transparent text-maroon-700 px-6 py-3 rounded-sm font-medium border-2 border-maroon-700 hover:bg-maroon-700 hover:text-white transition-all duration-300;
+    @apply bg-transparent text-maroon-700 px-4 sm:px-6 py-3 rounded-sm font-medium border-2 border-maroon-700 hover:bg-maroon-700 hover:text-white transition-all duration-300;
   }
 
   .btn-gold {
-    @apply bg-gold-500 text-white px-6 py-3 rounded-sm font-medium hover:bg-gold-600 transition-all duration-300 border border-gold-500 hover:shadow-lg;
+    @apply bg-gold-500 text-white px-4 sm:px-6 py-3 rounded-sm font-medium hover:bg-gold-600 transition-all duration-300 border border-gold-500 hover:shadow-lg;
   }
 
   .section-heading {
-    @apply text-3xl md:text-4xl font-heading text-maroon-800 text-center mb-2;
+    @apply text-2xl sm:text-3xl md:text-4xl font-heading text-maroon-800 text-center mb-2;
   }
 
   .section-subheading {

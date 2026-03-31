@@ -59,7 +59,7 @@ export default function OrdersPage() {
               transition={{ delay: i * 0.1 }}
               className="card-vintage p-6"
             >
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
                 <div>
                   <p className="font-heading text-lg text-maroon-800">{order.id}</p>
                   <p className="text-xs text-gray-500">Placed on {order.date}</p>
@@ -76,7 +76,7 @@ export default function OrdersPage() {
                   </div>
                 ))}
               </div>
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-gold-100">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mt-4 pt-4 border-t border-gold-100">
                 <span className="font-heading text-lg text-maroon-800">Total: {formatPrice(order.total)}</span>
                 <button className="flex items-center gap-1 text-sm text-maroon-600 hover:text-maroon-800">
                   View Details <ChevronRight size={14} />

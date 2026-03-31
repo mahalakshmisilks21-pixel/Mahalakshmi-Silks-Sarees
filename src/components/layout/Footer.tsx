@@ -59,8 +59,8 @@ export function Footer() {
     <footer className="bg-gradient-to-b from-[#0a0a0a] to-[#000000] text-gray-300">
       <div className="h-1 bg-gradient-to-r from-amber-600 via-yellow-400 to-amber-600" />
 
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:py-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           {/* Brand */}
           <div>
             <h3 className="font-heading text-2xl text-amber-400 mb-3">Mahalakshmi</h3>
@@ -79,7 +79,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <Mail size={14} className="text-amber-400 shrink-0" />
-                <span className="text-gray-400">mahalakshmisilks@email.com</span>
+                <span className="text-gray-400 break-all">mahalakshmisilks21@gmail.com</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock size={14} className="text-amber-400 shrink-0" />

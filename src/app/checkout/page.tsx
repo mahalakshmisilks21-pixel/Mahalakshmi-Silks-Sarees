@@ -98,18 +98,18 @@ export default function CheckoutPage() {
         <div className="flex items-center justify-between">
           {steps.map((s, i) => (
             <div key={s.key} className="flex items-center">
-              <div className={`flex items-center gap-2 ${i <= currentIdx ? "text-maroon-700" : "text-gray-300"}`}>
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+              <div className={`flex items-center gap-1 sm:gap-2 ${i <= currentIdx ? "text-maroon-700" : "text-gray-300"}`}>
+                <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
                   i < currentIdx ? "bg-maroon-700 border-maroon-700 text-white" :
                   i === currentIdx ? "border-maroon-700 text-maroon-700" :
                   "border-gray-300"
                 }`}>
                   {i < currentIdx ? <Check size={18} /> : <s.icon size={18} />}
                 </div>
-                <span className="hidden md:block text-sm font-medium">{s.label}</span>
+                <span className="hidden sm:block text-sm font-medium">{s.label}</span>
               </div>
               {i < steps.length - 1 && (
-                <div className={`w-12 md:w-24 h-0.5 mx-2 ${i < currentIdx ? "bg-maroon-700" : "bg-gray-200"}`} />
+                <div className={`w-6 sm:w-12 md:w-24 h-0.5 mx-1 sm:mx-2 ${i < currentIdx ? "bg-maroon-700" : "bg-gray-200"}`} />
               )}
             </div>
           ))}
@@ -119,7 +119,7 @@ export default function CheckoutPage() {
       <div className="max-w-4xl mx-auto px-4 pb-20">
         {/* Address */}
         {step === "address" && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="card-vintage p-8">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="card-vintage p-5 sm:p-8">
             <h2 className="font-heading text-2xl text-maroon-800 mb-6">Shipping Address</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -157,7 +157,7 @@ export default function CheckoutPage() {
 
         {/* Summary */}
         {step === "summary" && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="card-vintage p-8">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="card-vintage p-5 sm:p-8">
             <h2 className="font-heading text-2xl text-maroon-800 mb-6">Order Summary</h2>
             <div className="space-y-4 mb-6">
               {items.map((item) => (
@@ -192,7 +192,7 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            <div className="mt-8 flex justify-between">
+            <div className="mt-8 flex flex-col-reverse sm:flex-row justify-between gap-3">
               <button onClick={() => setStep("address")} className="btn-secondary">Back</button>
               <button onClick={() => setStep("whatsapp")} className="btn-primary flex items-center gap-2">
                 Continue <ChevronRight size={16} />
@@ -203,7 +203,7 @@ export default function CheckoutPage() {
 
         {/* WhatsApp Order */}
         {step === "whatsapp" && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="card-vintage p-8">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="card-vintage p-5 sm:p-8">
             <h2 className="font-heading text-2xl text-maroon-800 mb-4">Order via WhatsApp</h2>
             <p className="text-gray-500 text-sm mb-6">
               Your order details will be sent to our WhatsApp. We&apos;ll confirm your order and share payment details instantly!
@@ -240,7 +240,7 @@ export default function CheckoutPage() {
               <p className="text-xs text-gray-400">📍 {address.fullName}, {address.city}, {address.state}</p>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex flex-col-reverse sm:flex-row justify-between gap-3">
               <button onClick={() => setStep("summary")} className="btn-secondary">Back</button>
               <button
                 onClick={handleWhatsAppOrder}
@@ -255,7 +255,7 @@ export default function CheckoutPage() {
 
         {/* Confirmation */}
         {step === "confirmation" && (
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="card-vintage p-12 text-center">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="card-vintage p-6 sm:p-12 text-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}

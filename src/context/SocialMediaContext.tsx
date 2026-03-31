@@ -7,6 +7,10 @@ export interface SocialMediaSettings {
     instagramUrl: string;
     telegramUrl: string;
     phoneNumber: string;
+    shareWhatsApp: boolean;
+    shareInstagram: boolean;
+    shareTelegram: boolean;
+    shareCopyLink: boolean;
 }
 
 interface SocialMediaContextType {
@@ -22,6 +26,10 @@ const DEFAULT_SOCIAL: SocialMediaSettings = {
     instagramUrl: "https://www.instagram.com/mahalakshmi_silks",
     telegramUrl: "https://t.me/mahalakshmisilks",
     phoneNumber: "+918489240766",
+    shareWhatsApp: true,
+    shareInstagram: true,
+    shareTelegram: true,
+    shareCopyLink: true,
 };
 
 const STORAGE_KEY = "mahalakshmi_social";

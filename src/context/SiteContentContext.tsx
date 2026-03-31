@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { supabase } from "@/lib/supabase";
 
 /* ── Types ── */
 export interface AboutValue {
@@ -38,6 +39,17 @@ export interface SiteContent {
   contactBusinessHours: string[];
   contactMapDescription: string;
   contactFaqs: ContactFaq[];
+  // Welcome Popup
+  welcomePopupEnabled: boolean;
+  welcomePopupHeading: string;
+  welcomePopupSubtitle: string;
+  welcomePopupDiscountPercent: number;
+  welcomePopupCollectEmail: boolean;
+  welcomePopupCollectPhone: boolean;
+  welcomePopupShowInstagram: boolean;
+  welcomePopupButtonText: string;
+  welcomePopupDismissText: string;
+  welcomePopupShowOnce: boolean;
 }
 
 interface SiteContentContextType {
@@ -72,48 +84,73 @@ const DEFAULT_CONTENT: SiteContent = {
   ],
   // Contact
   contactHeroTitle: "Contact Us",
-  contactHeroSubtitle: "Have questions about our sarees? Need help with an order? We'd love to hear from you.",
+  contactHeroSubtitle: "Have questions about our sarees? Need help with an order? We\u2019d love to hear from you.",
   contactHeroBannerImage: "",
   contactAddress: ["875, Mettupalayam Main Road", "Erangattur, Uthandiyur (P.O.)", "Sathy (Tk.) Erode (Dt.) - 638 451"],
   contactPhones: ["+91 90803 16738", "+91 78068 65407"],
-  contactEmail: "mahalakshmisilks@email.com",
+  contactEmail: "mahalakshmisilks21@gmail.com",
   contactBusinessHours: ["Mon - Sat: 9AM - 9PM", "Sunday: Closed"],
   contactMapDescription:
     "Located on Mettupalayam Main Road near Erangattur, Sathy Taluk, Erode District. Visit our showroom to explore our complete collection of fancy handloom silk and silk cotton sarees.",
-  contactFaqs: [
-    { q: "Do you ship internationally?", a: "Currently we ship across India. International shipping is coming soon. Subscribe to our newsletter for updates." },
-    { q: "Are these sarees handwoven?", a: "Yes, all our sarees are handwoven by skilled artisans. Each piece comes with a Silk Mark certification." },
-    { q: "What is your return policy?", a: "We offer a 7-day return policy for unused sarees in original packaging. Contact our support team to initiate a return." },
-    { q: "Do you offer bulk or wholesale pricing?", a: "Yes! We offer special pricing for bulk orders. Please contact us via the form above or email wholesale@mahalakshmisilk.com." },
-  ],
+  contactFaqs: [],
+  // Welcome Popup
+  welcomePopupEnabled: false,
+  welcomePopupHeading: "GET 5% OFF ON YOUR FIRST PURCHASE 🎉",
+  welcomePopupSubtitle: "Sign up and unlock your instant discount.",
+  welcomePopupDiscountPercent: 5,
+  welcomePopupCollectEmail: true,
+  welcomePopupCollectPhone: true,
+  welcomePopupShowInstagram: true,
+  welcomePopupButtonText: "Claim discount",
+  welcomePopupDismissText: "No, thanks",
+  welcomePopupShowOnce: true,
 };
 
-const STORAGE_KEY = "mahalakshmi_site_content";
+const SUPABASE_TABLE = "site_content";
+const ROW_ID = "main"; // single-row table
 
 export function SiteContentProvider({ children }: { children: ReactNode }) {
   const [siteContent, setSiteContent] = useState<SiteContent>(DEFAULT_CONTENT);
   const [loaded, setLoaded] = useState(false);
 
+  /* ── Load from Supabase on mount (works for ALL users, logged in or not) ── */
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        // Merge with defaults so new fields added later don't break
-        setSiteContent((prev) => ({ ...prev, ...parsed }));
+    async function fetchContent() {
+      try {
+        const { data, error } = await supabase
+          .from(SUPABASE_TABLE)
+          .select("content")
+          .eq("id", ROW_ID)
+          .single();
+
+        if (data && !error) {
+          // Merge with defaults so new fields added later don't break
+          setSiteContent((prev) => ({ ...prev, ...data.content }));
+        }
+      } catch {
+        // Table might not exist yet — use defaults
+        console.log("site_content table not found, using defaults.");
       }
-    } catch {
-      /* ignore */
+      setLoaded(true);
     }
-    setLoaded(true);
+    fetchContent();
   }, []);
 
-  useEffect(() => {
-    if (loaded) localStorage.setItem(STORAGE_KEY, JSON.stringify(siteContent));
-  }, [siteContent, loaded]);
+  /* ── Save to Supabase whenever content changes (admin edits) ── */
+  const updateSiteContent = useCallback((updates: Partial<SiteContent>) => {
+    setSiteContent((prev) => {
+      const updated = { ...prev, ...updates };
 
-  const updateSiteContent = useCallback((data: Partial<SiteContent>) => {
-    setSiteContent((prev) => ({ ...prev, ...data }));
+      // Persist to Supabase (upsert = insert or update)
+      supabase
+        .from(SUPABASE_TABLE)
+        .upsert({ id: ROW_ID, content: updated, updated_at: new Date().toISOString() })
+        .then(({ error }) => {
+          if (error) console.error("Save site content error:", error);
+        });
+
+      return updated;
+    });
   }, []);
 
   return (

@@ -1,13 +1,12 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 import { useAdmin } from "@/context/AdminContext";
 
-/* ── Built-in Admin Credentials ── */
-const ADMIN_EMAIL = "bharanidharanb.24mca@kongu.edu";
+/* ── Admin credentials (hardcoded — not via Supabase Auth) ── */
+const ADMIN_EMAIL = "mahalakshmisilks21@gmail.com";
 const ADMIN_PASSWORD = "secret123";
-
-const STORAGE_KEY = "registered_users";
 
 export type UserRole = "admin" | "customer";
 
@@ -18,103 +17,237 @@ export interface User {
   role: UserRole;
 }
 
-interface StoredUser {
-  name: string;
-  email: string;
-  phone: string;
-  password: string;
-}
-
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => { success: boolean; error?: string };
-  register: (name: string, email: string, phone: string, password: string) => { success: boolean; error?: string };
+  loading: boolean;
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function loadUsers(): StoredUser[] {
-  if (typeof window === "undefined") return [];
+/* ── Session keys for admin (admin bypasses Supabase Auth) ── */
+const ADMIN_SESSION_KEY = "mahalakshmi_admin_session";
+
+function saveAdminSession(user: User): void {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(user));
+  } catch { /* ignore */ }
+}
+
+function loadAdminSession(): User | null {
+  try {
+    const raw = sessionStorage.getItem(ADMIN_SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed?.role === "admin") return parsed as User;
+    return null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-function saveUsers(users: StoredUser[]): void {
-  if (typeof window === "undefined") return;
+function clearAdminSession(): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-  } catch {
-    // fail silently
-  }
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  } catch { /* ignore */ }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [registeredUsers, setRegisteredUsers] = useState<StoredUser[]>(() => loadUsers());
+  const [loading, setLoading] = useState(true);
   const { addCustomer } = useAdmin();
 
-  // Persist registered users to localStorage
+  // ── Restore session on mount ──
   useEffect(() => {
-    saveUsers(registeredUsers);
-  }, [registeredUsers]);
+    let mounted = true;
 
+    async function restoreSession() {
+      // 1. Check admin session first
+      const adminUser = loadAdminSession();
+      if (adminUser) {
+        if (mounted) {
+          setUser(adminUser);
+          setLoading(false);
+        }
+        return;
+      }
+
+      // 2. Check Supabase session for customers
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user && mounted) {
+          const meta = session.user.user_metadata || {};
+          setUser({
+            name: meta.name || meta.full_name || "Customer",
+            email: session.user.email || "",
+            phone: meta.phone || "",
+            role: "customer",
+          });
+        }
+      } catch (err) {
+        console.error("[Auth] Failed to restore session:", err);
+      }
+
+      if (mounted) setLoading(false);
+    }
+
+    restoreSession();
+
+    // 3. Listen for auth state changes (login/logout from other tabs, token refresh, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+
+      // Don't overwrite admin session
+      const adminUser = loadAdminSession();
+      if (adminUser) return;
+
+      if (session?.user) {
+        const meta = session.user.user_metadata || {};
+        setUser({
+          name: meta.name || meta.full_name || "Customer",
+          email: session.user.email || "",
+          phone: meta.phone || "",
+          role: "customer",
+        });
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // ── Login ──
   const login = useCallback(
-    (email: string, password: string) => {
-      // Check admin credentials first
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        setUser({ name: "Admin", email: ADMIN_EMAIL, phone: "", role: "admin" });
+    async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+      const trimEmail = email.trim().toLowerCase();
+      const trimPass = password.trim();
+
+      // 1. Check admin credentials first (hardcoded)
+      if (trimEmail === ADMIN_EMAIL && trimPass === ADMIN_PASSWORD) {
+        const adminUser: User = { name: "Admin", email: ADMIN_EMAIL, phone: "", role: "admin" };
+        setUser(adminUser);
+        saveAdminSession(adminUser);
+        console.log("[Auth] Admin login SUCCESS");
         return { success: true };
       }
 
-      // Check registered customers
-      const found = registeredUsers.find(
-        (u) => u.email === email && u.password === password
-      );
-      if (found) {
-        setUser({ name: found.name, email: found.email, phone: found.phone, role: "customer" });
-        return { success: true };
+      // 2. Customer login via Supabase Auth
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: trimEmail,
+          password: trimPass,
+        });
+
+        if (error) {
+          console.log("[Auth] Supabase login FAILED:", error.message);
+          return { success: false, error: error.message === "Invalid login credentials" ? "Invalid email or password" : error.message };
+        }
+
+        if (data.user) {
+          const meta = data.user.user_metadata || {};
+          const customerUser: User = {
+            name: meta.name || meta.full_name || "Customer",
+            email: data.user.email || trimEmail,
+            phone: meta.phone || "",
+            role: "customer",
+          };
+          setUser(customerUser);
+          console.log("[Auth] Customer login SUCCESS:", customerUser.email);
+          return { success: true };
+        }
+
+        return { success: false, error: "Login failed. Please try again." };
+      } catch (err) {
+        console.error("[Auth] Login exception:", err);
+        return { success: false, error: "Something went wrong. Please try again." };
       }
-      return { success: false, error: "Invalid email or password" };
     },
-    [registeredUsers]
+    []
   );
 
+  // ── Register ──
   const register = useCallback(
-    (name: string, email: string, phone: string, password: string) => {
-      if (email === ADMIN_EMAIL) {
+    async (name: string, email: string, phone: string, password: string): Promise<{ success: boolean; error?: string }> => {
+      const trimEmail = email.trim().toLowerCase();
+      const trimName = name.trim();
+      const trimPhone = phone.trim();
+
+      // Block admin email
+      if (trimEmail === ADMIN_EMAIL) {
         return { success: false, error: "This email is reserved" };
       }
-      if (registeredUsers.some((u) => u.email === email)) {
-        return { success: false, error: "An account with this email already exists" };
+
+      try {
+        const { data, error } = await supabase.auth.signUp({
+          email: trimEmail,
+          password,
+          options: {
+            data: {
+              name: trimName,
+              full_name: trimName,
+              phone: trimPhone,
+            },
+          },
+        });
+
+        if (error) {
+          console.log("[Auth] Supabase register FAILED:", error.message);
+          if (error.message.includes("already registered")) {
+            return { success: false, error: "An account with this email already exists" };
+          }
+          return { success: false, error: error.message };
+        }
+
+        if (data.user) {
+          const customerUser: User = {
+            name: trimName,
+            email: data.user.email || trimEmail,
+            phone: trimPhone,
+            role: "customer",
+          };
+          setUser(customerUser);
+          console.log("[Auth] Registration SUCCESS:", trimEmail);
+
+          // Also add to admin customers list (for admin dashboard)
+          addCustomer({
+            name: trimName,
+            email: trimEmail,
+            phone: trimPhone,
+            orders: 0,
+            spent: 0,
+            joinDate: new Date().toISOString().split("T")[0],
+            address: "",
+            status: "active",
+          });
+
+          return { success: true };
+        }
+
+        return { success: false, error: "Registration failed. Please try again." };
+      } catch (err) {
+        console.error("[Auth] Register exception:", err);
+        return { success: false, error: "Something went wrong. Please try again." };
       }
-      setRegisteredUsers((prev) => [...prev, { name, email, phone, password }]);
-      setUser({ name, email, phone, role: "customer" });
-
-      // Auto-add to admin customers list
-      addCustomer({
-        name,
-        email,
-        phone,
-        orders: 0,
-        spent: 0,
-        joinDate: new Date().toISOString().split("T")[0],
-        address: "",
-        status: "active",
-      });
-
-      return { success: true };
     },
-    [registeredUsers, addCustomer]
+    [addCustomer]
   );
 
-  const logout = useCallback(() => setUser(null), []);
+  // ── Logout ──
+  const logout = useCallback(() => {
+    // Clear admin session
+    clearAdminSession();
+    // Sign out from Supabase
+    supabase.auth.signOut().catch(() => {});
+    setUser(null);
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -122,6 +255,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isAuthenticated: !!user,
         isAdmin: user?.role === "admin",
+        loading,
         login,
         register,
         logout,

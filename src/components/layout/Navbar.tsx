@@ -139,7 +139,7 @@ export function Navbar() {
             </nav>
 
             {/* Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <Link href="/sarees" className="hidden md:block text-maroon-700 hover:text-maroon-500 transition-colors">
                 <Search size={20} />
               </Link>
@@ -156,7 +156,7 @@ export function Navbar() {
                 </Link>
               )}
               {/* Wishlist */}
-              <Link href="/wishlist" className="relative hidden md:block text-maroon-700 hover:text-maroon-500 transition-colors">
+              <Link href="/wishlist" className="relative text-maroon-700 hover:text-maroon-500 transition-colors">
                 <Heart size={20} />
                 {totalWishlist > 0 && (
                   <motion.span
@@ -228,7 +228,7 @@ export function Navbar() {
                     )}
                   </div>
                 ))}
-                <div className="flex gap-6 pt-4 border-t border-gold-200">
+                <div className="flex flex-wrap gap-4 sm:gap-6 pt-4 border-t border-gold-200">
                   {isAuthenticated ? (
                     <>
                       <span className="text-maroon-700 text-sm font-medium">Hi, {user?.name?.split(" ")[0]}</span>

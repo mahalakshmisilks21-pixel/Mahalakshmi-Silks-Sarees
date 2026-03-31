@@ -13,10 +13,10 @@ export default function WishlistPage() {
     const { addToCart } = useCart();
 
     return (
-        <div className="min-h-screen bg-cream-50 py-12 px-4">
+        <div className="min-h-screen bg-cream-50 py-8 sm:py-12 px-4">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-10">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 sm:mb-10">
                     <div>
                         <p className="text-gold-600 tracking-[0.3em] uppercase text-xs mb-1">Your Saved Items</p>
                         <h1 className="font-heading text-3xl md:text-4xl text-maroon-900">My Wishlist</h1>

@@ -82,7 +82,7 @@ export default function AboutPage() {
       `}</style>
 
       {/* Hero - Deep jewel tone gradient */}
-      <section className="relative py-12 px-4 overflow-hidden">
+      <section className="relative py-8 sm:py-12 px-4 overflow-hidden">
         {siteContent.aboutHeroBannerImage ? (
           <>
             <img src={siteContent.aboutHeroBannerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -102,7 +102,7 @@ export default function AboutPage() {
             <span className="text-amber-300 tracking-[0.3em] uppercase text-xs">Our Story</span>
             <Sparkles size={14} className="text-amber-400" />
           </motion.div>
-          <motion.h1 {...fadeUp} transition={{ delay: 0.1 }} className="font-heading text-5xl md:text-6xl text-white mb-6">
+          <motion.h1 {...fadeUp} transition={{ delay: 0.1 }} className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-4 sm:mb-6">
             {heroLines.map((line, i) => (
               <span key={i}>
                 {i > 0 && <br />}
@@ -117,7 +117,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission - Warm earthy tones */}
-      <section className="py-12 px-4 bg-gradient-to-br from-[#faf5ee] to-[#f0e6d3]">
+      <section className="py-8 sm:py-12 px-4 bg-gradient-to-br from-[#faf5ee] to-[#f0e6d3]">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div {...fadeUp}>
@@ -134,7 +134,7 @@ export default function AboutPage() {
               ))}
             </motion.div>
             {/* 3-Image Staggered Collage with Hover Effects */}
-            <motion.div {...fadeUp} transition={{ delay: 0.2 }} className="relative collage-wrapper" style={{ minHeight: "520px", perspective: "1000px" }}>
+            <motion.div {...fadeUp} transition={{ delay: 0.2 }} className="relative collage-wrapper hidden lg:block" style={{ minHeight: "520px", perspective: "1000px" }}>
               {/* Image 1 — Large (main) */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -211,16 +211,41 @@ export default function AboutPage() {
                 </div>
               </motion.div>
             </motion.div>
+
+            {/* Mobile collage - simple grid */}
+            <motion.div {...fadeUp} transition={{ delay: 0.2 }} className="lg:hidden grid grid-cols-2 gap-3 mt-8">
+              <div className="col-span-2 aspect-[16/9] rounded-xl overflow-hidden shadow-lg">
+                {siteContent.aboutMissionImages?.[0] ? (
+                  <img src={siteContent.aboutMissionImages[0]} alt="Our Heritage" className="w-full h-full object-cover" />
+                ) : (
+                  <PlaceholderImage label="Heritage" variant="about" />
+                )}
+              </div>
+              <div className="aspect-square rounded-lg overflow-hidden shadow-md" style={{ border: "2px solid #d4a853" }}>
+                {siteContent.aboutMissionImages?.[1] ? (
+                  <img src={siteContent.aboutMissionImages[1]} alt="Craftsmanship" className="w-full h-full object-cover" />
+                ) : (
+                  <PlaceholderImage label="Artisan" variant="about" />
+                )}
+              </div>
+              <div className="aspect-square rounded-lg overflow-hidden shadow-md" style={{ border: "3px solid white" }}>
+                {siteContent.aboutMissionImages?.[2] ? (
+                  <img src={siteContent.aboutMissionImages[2]} alt="Detail" className="w-full h-full object-cover" />
+                ) : (
+                  <PlaceholderImage label="Detail" variant="about" />
+                )}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Values - Colorful gradient cards */}
-      <section className="py-12 px-4 bg-gradient-to-b from-maroon-800 to-maroon-900">
+      <section className="py-8 sm:py-12 px-4 bg-gradient-to-b from-maroon-800 to-maroon-900">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-gold-400 tracking-[0.3em] uppercase text-sm mb-3">What We Stand For</p>
-            <h2 className="font-heading text-4xl text-white mb-4">Our Values</h2>
+            <h2 className="font-heading text-3xl sm:text-4xl text-white mb-4">Our Values</h2>
             <p className="text-cream-200/70 max-w-lg mx-auto">The principles that guide every thread of our business.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -251,11 +276,11 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline - Rich warm background */}
-      <section className="py-12 px-4 bg-gradient-to-br from-[#faf5ee] to-[#f5ebe0]">
+      <section className="py-8 sm:py-12 px-4 bg-gradient-to-br from-[#faf5ee] to-[#f5ebe0]">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-[#2d1b4e] tracking-[0.3em] uppercase text-sm mb-3 opacity-60">Our Journey</p>
-            <h2 className="font-heading text-4xl text-[#2d1b4e] mb-4">Milestones</h2>
+            <h2 className="font-heading text-3xl sm:text-4xl text-[#2d1b4e] mb-4">Milestones</h2>
           </div>
           <div className="relative">
             <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-amber-400 via-rose-400 to-violet-400" />

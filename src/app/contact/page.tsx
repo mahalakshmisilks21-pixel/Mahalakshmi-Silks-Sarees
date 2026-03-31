@@ -23,7 +23,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen">
       {/* Hero */}
-      <section className="relative py-16 px-4 overflow-hidden">
+      <section className="relative py-10 sm:py-16 px-4 overflow-hidden">
         {siteContent.contactHeroBannerImage ? (
           <>
             <img src={siteContent.contactHeroBannerImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -37,7 +37,7 @@ export default function ContactPage() {
         )}
         <div className="relative max-w-7xl mx-auto text-center">
           <p className="text-gold-400 tracking-[0.4em] uppercase text-sm mb-2">Get in Touch</p>
-          <h1 className="font-heading text-4xl md:text-5xl text-white mb-4">{siteContent.contactHeroTitle}</h1>
+          <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl text-white mb-4">{siteContent.contactHeroTitle}</h1>
           <p className="text-cream-200 max-w-xl mx-auto">
             {siteContent.contactHeroSubtitle}
           </p>
@@ -45,7 +45,7 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Info Cards */}
-      <section className="py-16 px-4 -mt-8">
+      <section className="py-10 sm:py-16 px-4 -mt-8">
         <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {contactInfo.map((item, i) => (
             <motion.div
@@ -68,14 +68,14 @@ export default function ContactPage() {
       </section>
 
       {/* Form + Map */}
-      <section className="py-16 px-4 bg-gradient-to-b from-cream-100 to-cream-50">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <section className="py-10 sm:py-16 px-4 bg-gradient-to-b from-cream-100 to-cream-50">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Form */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="card-vintage p-8"
+            className="card-vintage p-5 sm:p-8"
           >
             {submitted ? (
               <div className="text-center py-12">

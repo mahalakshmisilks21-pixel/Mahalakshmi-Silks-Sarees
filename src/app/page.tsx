@@ -51,7 +51,7 @@ function HeroSection() {
     };
   }, []);
   return (
-    <section className="relative w-full h-[80vh] overflow-hidden bg-black">
+    <section className="relative w-full h-[60vh] sm:h-[70vh] md:h-[80vh] overflow-hidden bg-black">
       {/* Shimmer keyframes injected via style tag */}
       <style>{`
         @keyframes shimmer {
@@ -89,10 +89,10 @@ function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-black/40" />
 
       {/* ── Decorative corner ornaments with pulse ── */}
-      <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-gold-400 corner-pulse" />
-      <div className="absolute top-6 right-6 w-16 h-16 border-t-2 border-r-2 border-gold-400 corner-pulse" style={{ animationDelay: "0.5s" }} />
-      <div className="absolute bottom-6 left-6 w-16 h-16 border-b-2 border-l-2 border-gold-400 corner-pulse" style={{ animationDelay: "1s" }} />
-      <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-gold-400 corner-pulse" style={{ animationDelay: "1.5s" }} />
+      <div className="absolute top-3 left-3 sm:top-6 sm:left-6 w-10 h-10 sm:w-16 sm:h-16 border-t-2 border-l-2 border-gold-400 corner-pulse" />
+      <div className="absolute top-3 right-3 sm:top-6 sm:right-6 w-10 h-10 sm:w-16 sm:h-16 border-t-2 border-r-2 border-gold-400 corner-pulse" style={{ animationDelay: "0.5s" }} />
+      <div className="absolute bottom-3 left-3 sm:bottom-6 sm:left-6 w-10 h-10 sm:w-16 sm:h-16 border-b-2 border-l-2 border-gold-400 corner-pulse" style={{ animationDelay: "1s" }} />
+      <div className="absolute bottom-3 right-3 sm:bottom-6 sm:right-6 w-10 h-10 sm:w-16 sm:h-16 border-b-2 border-r-2 border-gold-400 corner-pulse" style={{ animationDelay: "1.5s" }} />
 
       {/* ── Top decorative line ── */}
       <motion.div
@@ -111,12 +111,12 @@ function HeroSection() {
       </motion.div>
 
       {/* ── Main content ── */}
-      <div className="relative h-full flex flex-col justify-between p-8 md:p-14">
+      <div className="relative h-full flex flex-col justify-between p-4 sm:p-8 md:p-14">
         {/* Top section */}
         <div className="flex items-start justify-between mt-8">
           {/* Mahalakshmi Silks - letter by letter */}
           <div>
-            <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl text-white leading-tight">
+            <h1 className="font-heading text-3xl sm:text-4xl md:text-6xl lg:text-7xl text-white leading-tight">
               {titleLetters.map((letter, i) => (
                 <motion.span
                   key={i}
@@ -134,7 +134,7 @@ function HeroSection() {
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 1 }}
-                className="text-shimmer ml-4 md:ml-8 text-glow"
+                className="text-shimmer ml-2 sm:ml-4 md:ml-8 text-glow"
               >
                 Silks
               </motion.span>
@@ -155,13 +155,13 @@ function HeroSection() {
         </div>
 
         {/* Bottom section */}
-        <div className="flex items-end justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
           {/* Description + Button */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.2 }}
-            className="max-w-md"
+            className="max-w-sm sm:max-w-md"
           >
             <motion.p
               initial={{ opacity: 0 }}
@@ -190,7 +190,7 @@ function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 1.8 }}
             >
-              <Link href="/sarees" className="inline-flex items-center gap-2 bg-gold-500/90 backdrop-blur-sm text-white font-medium text-sm px-8 py-3 rounded-sm hover:bg-gold-500 hover:scale-105 transition-all duration-300 shadow-xl tracking-wider uppercase hover:shadow-gold-500/30 hover:shadow-2xl">
+              <Link href="/sarees" className="inline-flex items-center gap-2 bg-gold-500/90 backdrop-blur-sm text-white font-medium text-xs sm:text-sm px-5 sm:px-8 py-2.5 sm:py-3 rounded-sm hover:bg-gold-500 hover:scale-105 transition-all duration-300 shadow-xl tracking-wider uppercase hover:shadow-gold-500/30 hover:shadow-2xl">
                 Explore Collection <ArrowRight size={16} />
               </Link>
             </motion.div>

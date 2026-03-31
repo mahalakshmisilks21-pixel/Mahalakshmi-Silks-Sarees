@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { login, isAuthenticated, isAdmin } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -28,17 +29,18 @@ export default function LoginPage() {
     return null;
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (!email || !password) {
       setError("Please fill in all fields");
       return;
     }
-    const result = login(email, password);
+    setSubmitting(true);
+    const result = await login(email, password);
+    setSubmitting(false);
     if (result.success) {
       // Role-based redirect handled by useAuth — isAdmin will be true on next render
-      // so the check at the top of the component will redirect appropriately
     } else {
       setError(result.error || "Login failed");
     }
@@ -65,7 +67,7 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
             <div>
               <label className="block text-sm text-gray-600 mb-1.5">Email Address</label>
               <div className="relative">
@@ -73,6 +75,7 @@ export default function LoginPage() {
                 <input
                   type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   className="input-vintage pl-11" placeholder="you@example.com"
+                  autoComplete="off"
                 />
               </div>
             </div>
@@ -85,6 +88,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"} value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="input-vintage pl-11 pr-11" placeholder="Enter your password"
+                  autoComplete="new-password"
                 />
                 <button
                   type="button" onClick={() => setShowPassword(!showPassword)}
@@ -100,10 +104,12 @@ export default function LoginPage() {
                 <input type="checkbox" className="accent-maroon-700" />
                 <span className="text-gray-600">Remember me</span>
               </label>
-              <Link href="#" className="text-maroon-600 hover:text-maroon-800">Forgot password?</Link>
+              <Link href="/forgot-password" className="text-maroon-600 hover:text-maroon-800">Forgot password?</Link>
             </div>
 
-            <button type="submit" className="btn-primary w-full">Sign In</button>
+            <button type="submit" disabled={submitting} className={`btn-primary w-full ${submitting ? "opacity-60 cursor-not-allowed" : ""}`}>
+              {submitting ? "Signing in..." : "Sign In"}
+            </button>
 
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gold-200" /></div>

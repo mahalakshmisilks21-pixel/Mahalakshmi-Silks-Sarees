@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Globe, FileText, Phone, Plus, Trash2, Save, GripVertical, Upload, Image as ImageIcon, X, Link2 } from "lucide-react";
+import { Globe, FileText, Phone, Plus, Trash2, Save, GripVertical, Upload, Image as ImageIcon, X, Link2, Gift } from "lucide-react";
 import { useSiteContent, AboutValue, AboutMilestone, ContactFaq } from "@/context/SiteContentContext";
 import { supabase } from "@/lib/supabase";
 
-type Tab = "about" | "contact";
+type Tab = "about" | "contact" | "popup";
 
 export default function AdminSiteContentPage() {
   const { siteContent, updateSiteContent } = useSiteContent();
@@ -97,6 +97,7 @@ export default function AdminSiteContentPage() {
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "about", label: "About Page", icon: <FileText size={16} /> },
     { key: "contact", label: "Contact Page", icon: <Phone size={16} /> },
+    { key: "popup", label: "Welcome Popup", icon: <Gift size={16} /> },
   ];
 
   return (
@@ -312,7 +313,7 @@ export default function AdminSiteContentPage() {
                 </div>
               </div>
             </motion.div>
-          ) : (
+          ) : activeTab === "contact" ? (
             <motion.div key="contact" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
               {/* Contact Hero Section */}
               <div className="card-vintage p-6">
@@ -452,7 +453,129 @@ export default function AdminSiteContentPage() {
 
 
             </motion.div>
-          )}
+          ) : activeTab === "popup" ? (
+            <motion.div key="popup" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
+              {/* Master Toggle */}
+              <div className="card-vintage p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 bg-gradient-to-br from-maroon-50 to-gold-50 text-maroon-600 rounded-sm flex items-center justify-center">
+                      <Gift size={18} />
+                    </div>
+                    <div>
+                      <h2 className="font-heading text-lg text-maroon-800">Welcome Popup</h2>
+                      <p className="text-[11px] text-gray-500">First-visit discount popup to boost conversions</p>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={siteContent.welcomePopupEnabled}
+                      onChange={(e) => updateSiteContent({ welcomePopupEnabled: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-14 h-7 bg-gray-200 peer-focus:ring-2 peer-focus:ring-maroon-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-6 after:w-6 after:transition-all after:shadow-sm" />
+                  </label>
+                </div>
+                {!siteContent.welcomePopupEnabled && (
+                  <div className="mt-4 px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-sm">
+                    <p className="text-xs text-gray-500">⚠️ The welcome popup is currently <strong>disabled</strong>. Enable it to show the popup to visitors.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Content Settings */}
+              <div className={`card-vintage p-6 transition-opacity ${!siteContent.welcomePopupEnabled ? "opacity-50 pointer-events-none" : ""}`}>
+                <SectionTitle icon={<FileText size={18} />} title="Popup Content" subtitle="Customize the heading, subtitle and button text" />
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Heading</label>
+                    <input
+                      className="input-vintage"
+                      value={siteContent.welcomePopupHeading}
+                      onChange={(e) => updateSiteContent({ welcomePopupHeading: e.target.value })}
+                      placeholder="GET 5% OFF ON YOUR FIRST PURCHASE 🎉"
+                    />
+                    <p className="text-[10px] text-gray-400 mt-1">Supports emojis — try 🎉 🎁 ✨</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-600 mb-1">Subtitle</label>
+                    <input
+                      className="input-vintage"
+                      value={siteContent.welcomePopupSubtitle}
+                      onChange={(e) => updateSiteContent({ welcomePopupSubtitle: e.target.value })}
+                      placeholder="Sign up and unlock your instant discount."
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1">Discount %</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        className="input-vintage"
+                        value={siteContent.welcomePopupDiscountPercent}
+                        onChange={(e) => updateSiteContent({ welcomePopupDiscountPercent: Number(e.target.value) })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1">Button Text</label>
+                      <input
+                        className="input-vintage"
+                        value={siteContent.welcomePopupButtonText}
+                        onChange={(e) => updateSiteContent({ welcomePopupButtonText: e.target.value })}
+                        placeholder="Claim discount"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1">Dismiss Text</label>
+                      <input
+                        className="input-vintage"
+                        value={siteContent.welcomePopupDismissText}
+                        onChange={(e) => updateSiteContent({ welcomePopupDismissText: e.target.value })}
+                        placeholder="No, thanks"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Toggle Options */}
+              <div className={`card-vintage p-6 transition-opacity ${!siteContent.welcomePopupEnabled ? "opacity-50 pointer-events-none" : ""}`}>
+                <SectionTitle icon={<Globe size={18} />} title="Display Options" subtitle="Control what fields & links appear in the popup" />
+                <div className="space-y-4 mt-4">
+                  {([
+                    { key: "welcomePopupCollectEmail" as const, label: "Collect Email", desc: "Show an email input field" },
+                    { key: "welcomePopupCollectPhone" as const, label: "Collect Phone", desc: "Show a phone number input field" },
+                    { key: "welcomePopupShowInstagram" as const, label: "Show Instagram Link", desc: "Display 'Follow us on Instagram' link (uses URL from Social Media settings)" },
+                    { key: "welcomePopupShowOnce" as const, label: "Show Once Per Visitor", desc: "Only show the popup on the first visit (uses browser storage)" },
+                  ]).map((item) => (
+                    <div key={item.key} className="flex items-center justify-between py-2">
+                      <div>
+                        <p className="text-sm text-maroon-800">{item.label}</p>
+                        <p className="text-xs text-gray-400">{item.desc}</p>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={siteContent[item.key]}
+                          onChange={(e) => updateSiteContent({ [item.key]: e.target.checked })}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-maroon-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-maroon-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all" />
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 px-3 py-2.5 bg-amber-50 border border-amber-200 rounded-sm">
+                  <p className="text-xs text-amber-700">
+                    💡 To test the popup, disable <strong>&quot;Show Once Per Visitor&quot;</strong> or clear your browser storage. The popup appears after a 2-second delay.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ) : null}
         </AnimatePresence>
       </div>
 

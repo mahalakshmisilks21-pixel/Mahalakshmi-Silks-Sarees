@@ -136,7 +136,7 @@ export default function SareesPage() {
               className="input-vintage pl-11"
             />
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="btn-secondary flex items-center gap-2 relative"
@@ -153,7 +153,7 @@ export default function SareesPage() {
               options={SORT_OPTIONS.map((opt) => ({ label: opt.label, value: opt.value }))}
               value={sortBy}
               onChange={setSortBy}
-              className="w-48"
+              className="w-full sm:w-48"
             />
           </div>
         </div>
