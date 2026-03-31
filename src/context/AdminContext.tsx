@@ -222,17 +222,39 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
   const getOrderById = useCallback((id: string) => orders.find((o) => o.id === id), [orders]);
 
   /* ── Customers ── */
-  const addCustomer = useCallback((customer: Omit<Customer, "id">) => {
+  const addCustomer = useCallback(async (customer: Omit<Customer, "id">) => {
+    // Check in-memory first
     setCustomers((prev) => {
       if (prev.some((c) => c.email === customer.email)) return prev;
-      const newCustomer = { ...customer, id: `cust-${Date.now()}` };
-
-      supabase.from("customers").insert({ ...newCustomer }).then(({ error }) => {
-        if (error) console.error("Insert customer error:", error);
-      });
-
-      return [...prev, newCustomer];
+      return prev; // Don't add yet — wait for DB check
     });
+
+    try {
+      // Check if customer already exists in Supabase
+      const { data: existing } = await supabase
+        .from("customers")
+        .select("id")
+        .eq("email", customer.email)
+        .limit(1)
+        .single();
+
+      if (existing) return; // Already exists in DB, skip
+
+      const newCustomer = { ...customer, id: `cust-${Date.now()}` };
+      const { error } = await supabase.from("customers").insert({ ...newCustomer });
+      if (error) {
+        console.error("Insert customer error:", error);
+        return;
+      }
+
+      // Add to state only after successful DB insert
+      setCustomers((prev) => {
+        if (prev.some((c) => c.email === customer.email)) return prev;
+        return [...prev, newCustomer];
+      });
+    } catch (err) {
+      console.error("addCustomer error:", err);
+    }
   }, []);
 
   const deleteCustomer = useCallback(
