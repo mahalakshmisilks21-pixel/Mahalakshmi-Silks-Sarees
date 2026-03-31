@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -29,6 +29,14 @@ const SORT_OPTIONS = [
 ];
 
 export default function SareesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="text-maroon-600">Loading...</div></div>}>
+      <SareesContent />
+    </Suspense>
+  );
+}
+
+function SareesContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "";
   const { products } = useAdmin();
