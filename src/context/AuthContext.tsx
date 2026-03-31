@@ -23,6 +23,7 @@ interface AuthContextType {
   isAdmin: boolean;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: () => Promise<void>;
   register: (name: string, email: string, phone: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
 }
@@ -240,6 +241,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [addCustomer]
   );
 
+  // ── Google OAuth ──
+  const loginWithGoogle = useCallback(async () => {
+    const redirectTo = typeof window !== "undefined"
+      ? `${window.location.origin}/auth/callback`
+      : "https://mahalakshmi-silks.netlify.app/auth/callback";
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo },
+    });
+    if (error) {
+      console.error("[Auth] Google OAuth error:", error.message);
+    }
+  }, []);
+
   // ── Logout ──
   const logout = useCallback(() => {
     // Clear admin session
@@ -257,6 +273,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAdmin: user?.role === "admin",
         loading,
         login,
+        loginWithGoogle,
         register,
         logout,
       }}
