@@ -77,17 +77,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // 2. Check Supabase session for customers
+      // 2. Check Supabase session for customers (or admin via Google OAuth)
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user && mounted) {
           const meta = session.user.user_metadata || {};
-          setUser({
-            name: meta.name || meta.full_name || "Customer",
-            email: session.user.email || "",
-            phone: meta.phone || "",
-            role: "customer",
-          });
+          const sessionEmail = (session.user.email || "").toLowerCase();
+          const isAdminGoogle = sessionEmail === ADMIN_EMAIL;
+
+          if (isAdminGoogle) {
+            const adminUser: User = { name: "Admin", email: ADMIN_EMAIL, phone: "", role: "admin" };
+            setUser(adminUser);
+            saveAdminSession(adminUser);
+          } else {
+            setUser({
+              name: meta.name || meta.full_name || "Customer",
+              email: session.user.email || "",
+              phone: meta.phone || "",
+              role: "customer",
+            });
+          }
         }
       } catch (err) {
         console.error("[Auth] Failed to restore session:", err);
@@ -109,28 +118,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (session?.user) {
         const meta = session.user.user_metadata || {};
         const customerName = meta.name || meta.full_name || "Customer";
-        const customerEmail = session.user.email || "";
+        const customerEmail = (session.user.email || "").toLowerCase();
         const customerPhone = meta.phone || "";
 
-        setUser({
-          name: customerName,
-          email: customerEmail,
-          phone: customerPhone,
-          role: "customer",
-        });
-
-        // Add to admin customers list on sign-in (addCustomer deduplicates by email)
-        if (event === "SIGNED_IN") {
-          addCustomer({
+        // Check if this Google sign-in is from the admin email
+        if (customerEmail === ADMIN_EMAIL) {
+          const adminUser: User = { name: "Admin", email: ADMIN_EMAIL, phone: "", role: "admin" };
+          setUser(adminUser);
+          saveAdminSession(adminUser);
+          console.log("[Auth] Admin logged in via Google OAuth");
+        } else {
+          setUser({
             name: customerName,
             email: customerEmail,
             phone: customerPhone,
-            orders: 0,
-            spent: 0,
-            joinDate: new Date().toISOString().split("T")[0],
-            address: meta.address || "",
-            status: "active",
+            role: "customer",
           });
+
+          // Add to admin customers list on sign-in (addCustomer deduplicates by email)
+          if (event === "SIGNED_IN") {
+            addCustomer({
+              name: customerName,
+              email: customerEmail,
+              phone: customerPhone,
+              orders: 0,
+              spent: 0,
+              joinDate: new Date().toISOString().split("T")[0],
+              address: meta.address || "",
+              status: "active",
+            });
+          }
         }
       } else {
         setUser(null);
