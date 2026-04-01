@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { SlidersHorizontal, ChevronDown, X, Star, ShoppingCart, Search } from "lucide-react";
-import { products as allProducts, SILK_TYPES, COLORS, CATEGORIES, Product } from "@/lib/data";
+import { SILK_TYPES, COLORS, CATEGORIES, Product } from "@/lib/data";
 import { formatPrice } from "@/lib/utils";
 import { PlaceholderImage } from "@/components/ui/PlaceholderImage";
 import { useCart } from "@/context/CartContext";

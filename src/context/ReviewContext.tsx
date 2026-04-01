@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
-import { Review, reviews as seedReviews } from "@/lib/data";
+import { Review } from "@/lib/data";
 import { supabase } from "@/lib/supabase";
 
 interface ReviewContextType {
@@ -28,12 +28,10 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
 
                 if (error) {
                     console.error("[Reviews] Fetch error:", error);
-                    setReviews(seedReviews);
                     return;
                 }
 
-                if (data && data.length > 0) {
-                    // Map Supabase columns to Review interface
+                if (data) {
                     const mapped: Review[] = data.map((r: any) => ({
                         id: r.id,
                         productId: r.productId,
@@ -44,23 +42,9 @@ export function ReviewProvider({ children }: { children: ReactNode }) {
                         adminReply: r.adminReply || undefined,
                     }));
                     setReviews(mapped);
-                } else {
-                    // Seed initial reviews to Supabase
-                    const toInsert = seedReviews.map((r) => ({
-                        id: r.id,
-                        productId: r.productId,
-                        userName: r.userName,
-                        rating: r.rating,
-                        comment: r.comment,
-                        date: r.date,
-                        adminReply: r.adminReply || null,
-                    }));
-                    await supabase.from("reviews").insert(toInsert);
-                    setReviews(seedReviews);
                 }
             } catch (err) {
                 console.error("[Reviews] Exception:", err);
-                setReviews(seedReviews);
             }
         }
         fetchReviews();

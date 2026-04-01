@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
-import { offers as defaultOffers } from "@/lib/data";
 
 export interface Offer {
     id: string;
@@ -50,11 +49,6 @@ export function PromotionProvider({ children }: { children: ReactNode }) {
             const savedOffers = localStorage.getItem(STORAGE_KEY_OFFERS);
             if (savedOffers) {
                 setOffers(JSON.parse(savedOffers));
-            } else {
-                // Seed from default data
-                const seeded: Offer[] = defaultOffers.map((o) => ({ ...o, active: true }));
-                setOffers(seeded);
-                localStorage.setItem(STORAGE_KEY_OFFERS, JSON.stringify(seeded));
             }
         } catch { /* ignore */ }
         setLoaded(true);

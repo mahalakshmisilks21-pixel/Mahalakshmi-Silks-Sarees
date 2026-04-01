@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { Product, products as catalogProducts } from "@/lib/data";
+import { Product } from "@/lib/data";
 import { supabase } from "@/lib/supabase";
 
 /* ── Types ── */
@@ -71,7 +71,7 @@ interface AdminContextType {
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(catalogProducts);
+  const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [inventoryLogs, setInventoryLogs] = useState<InventoryLog[]>([]);
@@ -88,7 +88,7 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
           supabase.from("inventory_logs").select("*").order("created_at", { ascending: false }),
         ]);
 
-        if (prodRes.data && prodRes.data.length > 0) setProducts(prodRes.data as Product[]);
+        if (prodRes.data) setProducts(prodRes.data as Product[]);
         if (ordRes.data) setOrders(ordRes.data as Order[]);
         if (custRes.data) setCustomers(custRes.data as Customer[]);
         if (invRes.data) setInventoryLogs(invRes.data as InventoryLog[]);
