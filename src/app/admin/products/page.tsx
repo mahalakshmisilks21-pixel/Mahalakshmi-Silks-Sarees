@@ -8,6 +8,7 @@ import {
   ChevronDown, AlertTriangle, Check, Upload, Image as ImageIcon, Link2,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { uploadProductImage } from "@/lib/upload";
 import { useAdmin } from "@/context/AdminContext";
 import { Dropdown } from "@/components/ui/Dropdown";
 import { formatPrice } from "@/lib/utils";
@@ -54,31 +55,27 @@ export default function AdminProductsPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-    const filePath = `products/${fileName}`;
-    const { error } = await supabase.storage.from("product-images").upload(filePath, file);
-    if (error) {
-      console.error("Upload error:", error);
-      alert("Upload failed. Make sure 'product-images' bucket exists in Supabase Storage.");
+    const result = await uploadProductImage(file);
+    if ("error" in result) {
+      console.error("Upload error:", result.error);
+      alert("Upload failed: " + result.error);
       setUploading(false);
       return;
     }
-    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(filePath);
-    setForm((f) => ({ ...f, images: [...f.images, urlData.publicUrl] }));
+    setForm((f) => ({ ...f, images: [...f.images, result.publicUrl] }));
     setUploading(false);
   }
 
   async function handleFileDrop(file: File) {
     if (!file || !file.type.startsWith("image/")) return;
     setUploading(true);
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-    const filePath = `products/${fileName}`;
-    const { error } = await supabase.storage.from("product-images").upload(filePath, file);
-    if (error) { alert("Upload failed: " + error.message); setUploading(false); return; }
-    const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(filePath);
-    setForm((f) => ({ ...f, images: [...f.images, publicUrl] }));
+    const result = await uploadProductImage(file);
+    if ("error" in result) {
+      alert("Upload failed: " + result.error);
+      setUploading(false);
+      return;
+    }
+    setForm((f) => ({ ...f, images: [...f.images, result.publicUrl] }));
     setUploading(false);
   }
 

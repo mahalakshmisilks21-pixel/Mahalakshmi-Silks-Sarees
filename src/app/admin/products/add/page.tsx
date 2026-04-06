@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Check, Package, Upload, X, Image as ImageIcon, Link2 } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 import { SILK_TYPES, COLORS, CATEGORIES } from "@/lib/data";
-import { supabase } from "@/lib/supabase";
+import { uploadProductImage } from "@/lib/upload";
 import { Dropdown } from "@/components/ui/Dropdown";
 import Link from "next/link";
 
@@ -42,13 +42,13 @@ export default function AddProductPage() {
     async function handleFileDrop(file: File) {
         if (!file || !file.type.startsWith("image/")) return;
         setUploading(true);
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-        const filePath = `products/${fileName}`;
-        const { error } = await supabase.storage.from("product-images").upload(filePath, file);
-        if (error) { alert("Upload failed: " + error.message); setUploading(false); return; }
-        const { data: { publicUrl } } = supabase.storage.from("product-images").getPublicUrl(filePath);
-        setForm((f) => ({ ...f, images: [...f.images, publicUrl] }));
+        const result = await uploadProductImage(file);
+        if ("error" in result) {
+            alert("Upload failed: " + result.error);
+            setUploading(false);
+            return;
+        }
+        setForm((f) => ({ ...f, images: [...f.images, result.publicUrl] }));
         setUploading(false);
     }
 
@@ -57,21 +57,16 @@ export default function AddProductPage() {
         if (!file) return;
 
         setUploading(true);
-        const fileExt = file.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-        const filePath = `products/${fileName}`;
+        const result = await uploadProductImage(file);
 
-        const { error } = await supabase.storage.from("product-images").upload(filePath, file);
-
-        if (error) {
-            console.error("Upload error:", error);
-            alert("Upload failed. Make sure 'product-images' bucket exists in Supabase Storage.");
+        if ("error" in result) {
+            console.error("Upload error:", result.error);
+            alert("Upload failed: " + result.error);
             setUploading(false);
             return;
         }
 
-        const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(filePath);
-        setForm((f) => ({ ...f, images: [...f.images, urlData.publicUrl] }));
+        setForm((f) => ({ ...f, images: [...f.images, result.publicUrl] }));
         setUploading(false);
     }
 

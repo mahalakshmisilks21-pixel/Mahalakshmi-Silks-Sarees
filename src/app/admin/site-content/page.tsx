@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe, FileText, Phone, Plus, Trash2, Save, GripVertical, Upload, Image as ImageIcon, X, Link2, Gift } from "lucide-react";
 import { useSiteContent, AboutValue, AboutMilestone, ContactFaq } from "@/context/SiteContentContext";
-import { supabase } from "@/lib/supabase";
+import { uploadProductImage } from "@/lib/upload";
 
 type Tab = "about" | "contact" | "popup";
 
@@ -19,27 +19,23 @@ export default function AdminSiteContentPage() {
     setTimeout(() => setSaved(false), 2000);
   }
 
-  /* ── Image upload (Supabase) ── */
+  /* ── Image upload (via server API route) ── */
   async function handleImageUpload(file: File, field: string, index?: number) {
     if (!file || !file.type.startsWith("image/")) return;
     const uploadKey = index !== undefined ? `${field}-${index}` : field;
     setUploading(uploadKey);
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).slice(2)}.${fileExt}`;
-    const filePath = `site-content/${fileName}`;
-    const { error } = await supabase.storage.from("product-images").upload(filePath, file);
-    if (error) {
-      alert("Upload failed. Make sure 'product-images' bucket exists in Supabase Storage.");
+    const result = await uploadProductImage(file);
+    if ("error" in result) {
+      alert("Upload failed: " + result.error);
       setUploading(null);
       return;
     }
-    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(filePath);
     if (index !== undefined && field === "aboutMissionImages") {
       const updated = [...siteContent.aboutMissionImages];
-      updated[index] = urlData.publicUrl;
+      updated[index] = result.publicUrl;
       updateSiteContent({ aboutMissionImages: updated });
     } else {
-      updateSiteContent({ [field]: urlData.publicUrl });
+      updateSiteContent({ [field]: result.publicUrl });
     }
     setUploading(null);
   }
